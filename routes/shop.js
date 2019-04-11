@@ -9,8 +9,12 @@ const router = express.Router();
 
 // .use() -> Add new middleware
 router.get('/', (req, res, next) => {
-    console.log(adminData.products);
-    res.render('shop');
+    const products = adminData.products;
+    res.render('shop', {
+        prods: products,
+        docTitle: 'Shop',
+        path:'/'
+    });
 });
 
 module.exports = router;
