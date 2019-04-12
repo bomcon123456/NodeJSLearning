@@ -4,8 +4,9 @@ const path = require('path');
 const rootDir = require('../util/path')
 const pathToSaveFile = path.join(rootDir, 'data', 'products.json');
 
-const getProductsFromFile = (callback) => {
+const Cart = require('./cart');
 
+const getProductsFromFile = (callback) => {
     fs.readFile(pathToSaveFile, (err, fileContent) => {
         if (err) {
             callback([]);
@@ -43,6 +44,19 @@ module.exports = class Product {
                         console.log(err);
                 });
             }
+        });
+    }
+
+    static deleteById(id) {
+        getProductsFromFile((products) => {
+            const product = products.find(prod => prod.id === id);
+            const updateProducts = products.filter(prod => prod.id !== id);
+            fs.writeFile(pathToSaveFile, JSON.stringify(updateProducts), (err) => {
+                if(!err)
+                {
+                    Cart.deleteById(id, product.price);
+                }
+            });
         });
     }
 
