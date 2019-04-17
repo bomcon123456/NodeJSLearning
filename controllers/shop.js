@@ -18,7 +18,7 @@ exports.getProducts = (req, res, next) => {
             res.render('shop/product-list', {
                 prods: products,
                 pageTitle: 'All Products',
-                path: '/products',
+                path: '/products'
             });
         }).catch(err => console.log(err));
 };
@@ -61,20 +61,6 @@ exports.postCart = (req, res, next) => {
         .catch(err => console.log(err));
 };
 
-exports.getOrders = (req, res, next) => {
-    Order.find({
-            'user.userId': req.user._id
-        })
-        .then(orders => {
-            // console.log(orders);
-            res.render('shop/orders', {
-                path: '/orders',
-                pageTitle: 'Your Order',
-                orders: orders
-            });
-        })
-        .catch(err => console.log(err));
-};
 
 exports.getCheckout = (req, res, next) => {
     res.render('shop/checkout', {
@@ -93,25 +79,40 @@ exports.postCartDeleteProduct = (req, res, next) => {
         .catch(err => console.log(err));
 }
 
+exports.getOrders = (req, res, next) => {
+    Order.find({
+            'user.userId': req.user._id
+        })
+        .then(orders => {
+            // console.log(orders);
+            res.render('shop/orders', {
+                path: '/orders',
+                pageTitle: 'Your Order',
+                orders: orders
+            });
+        })
+        .catch(err => console.log(err));
+};
+
 exports.postOrder = (req, res, next) => {
     req.user.populate('cart.items.productId')
         .execPopulate()
         .then(user => {
             const curProducts = user.cart.items.map(i => {
                 return {
-                    product: {...i.productId._doc},
+                    product: {
+                        ...i.productId._doc
+                    },
                     quantity: i.quantity
                 }
             });
-            console.log(curProducts);
             const order = new Order({
                 products: curProducts,
                 user: {
-                    name: req.user.name,
+                    email: req.user.email,
                     userId: req.user,
                 }
             });
-            console.log(order);
             return order.save();
         })
         .then(result => {

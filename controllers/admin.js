@@ -6,7 +6,7 @@ const Product = require('../models/product');
  * Product.find().populate('userId') -> returns the User with the associated userId.
  */
 
-exports.getAddProduct = (req, res, next) => {
+exports.getAddProduct = (req, res, next) => { 
     res.render('admin/edit-product', {
         pageTitle: 'Add Product',
         path: '/admin/add-product',
@@ -16,14 +16,14 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
     const title = req.body.title;
-    const imageURL = req.body.imageURL;
+    const imageURL = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
     const product = new Product({
         title: title,
         price: price,
         description: description,
-        imageURL: imageURL,
+        imageUrl: imageURL,
         userId: req.user
     });
     product.save().then(result => {
@@ -54,13 +54,13 @@ exports.postEditProduct = (req, res, next) => {
     const prodId = req.body.productId;
     const updatedTitle = req.body.title;
     const updatedPrice = req.body.price;
-    const updatedImageURL = req.body.imageURL;
+    const updatedImageURL = req.body.imageUrl;
     const updatedDescription = req.body.description;
     Product.findById(prodId)
     .then(product => {
         product.title = updatedTitle;
         product.price = updatedPrice;
-        product.imageURL = updatedImageURL;
+        product.imageUrl = updatedImageURL;
         product.description = updatedDescription;
         return product.save()
     })
