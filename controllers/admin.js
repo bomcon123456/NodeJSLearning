@@ -6,7 +6,7 @@ const Product = require('../models/product');
  * Product.find().populate('userId') -> returns the User with the associated userId.
  */
 
-exports.getAddProduct = (req, res, next) => { 
+exports.getAddProduct = (req, res, next) => {
     res.render('admin/edit-product', {
         pageTitle: 'Add Product',
         path: '/admin/add-product',
@@ -57,22 +57,27 @@ exports.postEditProduct = (req, res, next) => {
     const updatedImageURL = req.body.imageUrl;
     const updatedDescription = req.body.description;
     Product.findById(prodId)
-    .then(product => {
-        product.title = updatedTitle;
-        product.price = updatedPrice;
-        product.imageUrl = updatedImageURL;
-        product.description = updatedDescription;
-        return product.save()
-    })
-    .then(result => {
-        console.log('UPDATED PRODUCT');
-        res.redirect('/admin/products');
-    })
-    .catch(err => console.log(err));
+        .then(product => {
+            if (product.userId.toString() !== req.user._id.toString()) {
+                return res.redirect('/');
+            }
+            product.title = updatedTitle;
+            product.price = updatedPrice;
+            product.imageUrl = updatedImageURL;
+            product.description = updatedDescription;
+            return product.save()
+                .then(result => {
+                    console.log('UPDATED PRODUCT');
+                    res.redirect('/admin/products');
+                });
+        })
+        .catch(err => console.log(err));
 };
 
 exports.getProducts = (req, res, next) => {
-    Product.find()
+    Product.find({
+            userId: req.user._id
+        })
         .then((products) => {
             res.render('admin/products', {
                 prods: products,
@@ -84,7 +89,10 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
     const productId = req.body.productId;
-    Product.findByIdAndDelete(productId)
+    Product.deleteOne({
+            _id: productId,
+            userId: req.user._id
+        })
         .then(result => {
             console.log("Product's destroyed");
             res.redirect('/admin/products');
