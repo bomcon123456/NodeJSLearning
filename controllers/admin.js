@@ -1,4 +1,6 @@
-const {validationResult} = require('express-validator/check');
+const {
+    validationResult
+} = require('express-validator/check');
 
 const Product = require('../models/product');
 
@@ -26,8 +28,7 @@ exports.postAddProduct = (req, res, next) => {
     const description = req.body.description;
 
     const errors = validationResult(req);
-    if(!errors.isEmpty())
-    {
+    if (!errors.isEmpty()) {
         return res.status(422).render('admin/edit-product', {
             pageTitle: 'Add Product',
             path: '/admin/add-product',
@@ -54,7 +55,11 @@ exports.postAddProduct = (req, res, next) => {
     product.save().then(result => {
         console.log('Create Product');
         res.redirect('/admin/products');
-    }).catch(err => console.log(err));
+    }).catch(err => {
+        const error = new Error(err);
+        error.httpStatus = 500;
+        return next(error);
+    });
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -75,7 +80,11 @@ exports.getEditProduct = (req, res, next) => {
                 validationErrors: []
             });
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatus = 500;
+            return next(error);
+        });
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -86,8 +95,7 @@ exports.postEditProduct = (req, res, next) => {
     const updatedDescription = req.body.description;
 
     const errors = validationResult(req);
-    if(!errors.isEmpty())
-    {
+    if (!errors.isEmpty()) {
         return res.status(422).render('admin/edit-product', {
             pageTitle: 'Edit Product',
             path: '/admin/edit-product',
@@ -120,7 +128,11 @@ exports.postEditProduct = (req, res, next) => {
                     res.redirect('/admin/products');
                 });
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatus = 500;
+            return next(error);
+        });
 };
 
 exports.getProducts = (req, res, next) => {
@@ -133,7 +145,11 @@ exports.getProducts = (req, res, next) => {
                 pageTitle: 'Admin Products',
                 path: '/admin/products'
             });
-        }).catch(err => console.log(err));
+        }).catch(err => {
+            const error = new Error(err);
+            error.httpStatus = 500;
+            return next(error);
+        });
 }
 
 exports.postDeleteProduct = (req, res, next) => {
@@ -146,5 +162,9 @@ exports.postDeleteProduct = (req, res, next) => {
             console.log("Product's destroyed");
             res.redirect('/admin/products');
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatus = 500;
+            return next(error);
+        });
 }
