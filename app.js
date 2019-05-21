@@ -1,11 +1,21 @@
 const path = require('path');
 
 const express = require('express');
-const session = require('express-session');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+
+// Express-session is used to create cookie and store it in the session automatically
+// Session is initially stored in the memory, which is BAD.
+const session = require('express-session');
+// MongoDBStore is used to let the session to be store in the database rather than the memory
 const MongoDBStore = require('connect-mongodb-session')(session);
+
+// csurf is used generated a token attached to the form you gonna post
+// so every-post's view, you gotta add the csrfToken
 const csrf = require('csurf');
+// flash is used to send message from this section to that section
+// e.g: in postLogin, the user entered a wrong password, flash will send a error message in a flash, then render the /login
+// then in the GET /login, we get the message from the flash.
 const flash = require('connect-flash');
 
 const adminRoutes = require('./routes/admin');
@@ -20,9 +30,10 @@ const MONGODB_URI = 'mongodb+srv://test:test@cloud-ejl26.mongodb.net/shop';
 
 const app = express();
 const store = new MongoDBStore({
-    uri: MONGODB_URI,
-    collection: 'sessions'
+    uri: MONGODB_URI,               // which database the sessions will be stored
+    collection: 'sessions'          // which collection the sessions will be stored
 });
+
 const csrfProtection = csrf();
 
 app.set('view engine', 'ejs');
@@ -37,9 +48,11 @@ app.use(session({
     saveUninitialized: false,
     store: store
 }));
+
 app.use(csrfProtection);
 app.use(flash());
 
+// This mean in every respond, these two variable will always attached to
 app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.isLoggedIn;
     res.locals.csrfToken = req.csrfToken();
@@ -56,7 +69,7 @@ app.use((req, res, next) => {
             next();
         })
         .catch(err => {
-            throw new Error(err);
+            next(new Error(err));
         });
     else
         return next();
@@ -70,7 +83,7 @@ app.use('/500', errorController.get500);
 
 app.use(errorController.get404);
 
-app.use((error, req, res, next) => {
+app.use((err, req, res, next) => {
     res.status(500).render('500', {
         pageTitle: '500 ERROR',
         path: '/500',

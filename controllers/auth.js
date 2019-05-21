@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const crypto = require('crypto');       // create unique secure random values
 
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');

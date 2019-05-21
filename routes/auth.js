@@ -1,7 +1,7 @@
 const express = require('express');
 const {
-    check,
-    body
+    check,  // check from anywhere
+    body    // check only from the body of the request
 } = require('express-validator/check');
 
 const authController = require('../controllers/auth');
@@ -25,7 +25,7 @@ router.post(
         .isAlphanumeric()
         .trim()
     ],
-     authController.postLogin);
+    authController.postLogin);
 
 router.post('/logout', authController.postLogout);
 
@@ -35,15 +35,16 @@ router.post(
     [
         check('email')
         .isEmail()
-        .custom((value, {
-            req
-        }) => {
+        .custom((value, {req}) => {
             return User.findOne({
                     email: value
                 })
                 .then(user => {
                     if (user) {
-                        return Promise.reject('E-mail existed.');
+                        // Express-validator's .custom() function can receive a promise
+                        // So in this case, express will wait until the promise to be fufilled
+                        // If it see a rejected promise, express will see it as an error
+                        return Promise.reject('E-mail existed.');  
                     }
                 });
         })
