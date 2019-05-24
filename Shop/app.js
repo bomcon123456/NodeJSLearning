@@ -26,9 +26,9 @@ const errorController = require('./controllers/error');
 
 const User = require('./models/user');
 
-const MONGODB_URI = 'mongodb+srv://test:test@cloud-ejl26.mongodb.net/shop';
-
 const app = express();
+
+const MONGODB_URI = 'mongodb+srv://test:test@cloud-ejl26.mongodb.net/shop';
 const store = new MongoDBStore({
     uri: MONGODB_URI,               // which database the sessions will be stored
     collection: 'sessions'          // which collection the sessions will be stored
@@ -46,7 +46,7 @@ app.use(session({
     secret: 'a very long string.',
     resave: false,
     saveUninitialized: false,
-    store: store
+    store: store        // store this session to where?
 }));
 
 app.use(csrfProtection);
